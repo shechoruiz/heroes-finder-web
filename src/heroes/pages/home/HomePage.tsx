@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CustomJumbotron } from "@/components/custom/CustomJumbotron";
@@ -7,20 +7,29 @@ import { HeroStats } from "@/heroes/components/HeroStats";
 import { HeroGrid } from "@/heroes/components/HeroGrid";
 import { CustomPagination } from "@/components/custom/CustomPagination";
 import { CustomBreadcrumbs } from "@/components/custom/CustomBreadcrumbs";
-import { getHeroesByPageAction } from "@/heroes/actions/get-heroes-by-page.action";
+import { useHeroSummary } from "@/heroes/hooks/useHeroSummary";
+import { usePaginatedHero } from "@/heroes/hooks/usePaginatedHero";
 
 export const HomePage = () => {
-  const [activeTab, setActiveTab] = useState<
-    "all" | "favorites" | "heroes" | "villains"
-  >("all");
+  // Que es el useSearchParams: son los parametros de consulta o query string que van después del signo de interrogación (?) en una URL (por ejemplo: /productos?categoria=ropa&orden=precio). Sirven para leer y modificar datos en la URL, como filtros o páginas.
+  const [searchParams, setSearchParams] = useSearchParams();
+  // La ventaja de los query parameters es que permite que el estado de la aplicacion sea persistenente y se pueda compartir. useState no puede hacer eso por si solo ya que el estado vive en memoria y se resetea cada vez que se recarga la pagina
+  const activeTab = searchParams.get("tab") ?? "all";
+  const page = searchParams.get("page") ?? "1";
+  const limit = searchParams.get("limit") ?? "6";
+  const category = searchParams.get("category") ?? "all";
+  // Por que se uso useMemo en este punto? Controlaremos que el valor del tab sea valido, si no lo es, lo cambiaremos por "all". usamos memo por que queremos que se ejecute solo cuando cambie el activeTab
+  const selectedTab = useMemo(() => {
+    const validTabs = ["all", "favorites", "heroes", "villains"];
+    return validTabs.includes(activeTab) ? activeTab : "all";
+  }, [activeTab]);
 
-  const { data: heroesResponse } = useQuery({
-    queryKey: ["heroes"],
-    queryFn: () => getHeroesByPageAction(),
-    staleTime: 1000 * 60 * 5,
-  });
-
-  console.log({ heroesResponse });
+  const { data: heroesResponse } = usePaginatedHero(
+    Number(page),
+    Number(limit),
+    category,
+  );
+  const { data: summary } = useHeroSummary();
 
   return (
     <>
@@ -33,46 +42,82 @@ export const HomePage = () => {
       <HeroStats />
 
       {/* Tabs */}
-      <Tabs value={activeTab} className="mb-8">
+      <Tabs value={selectedTab} className="mb-8">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="all" onClick={() => setActiveTab("all")}>
-            All Characters (16)
+          <TabsTrigger
+            value="all"
+            onClick={() =>
+              setSearchParams((prev) => {
+                prev.set("tab", "all");
+                prev.set("category", "all");
+                prev.set("page", "1");
+                return prev;
+              })
+            }
+          >
+            All Characters ({summary?.totalHeroes ?? 0})
           </TabsTrigger>
           <TabsTrigger
             value="favorites"
             className="flex items-center gap-2"
-            onClick={() => setActiveTab("favorites")}
+            onClick={() =>
+              setSearchParams((prev) => {
+                prev.set("tab", "favorites");
+                //
+                prev.set("page", "1");
+                return prev;
+              })
+            }
           >
             Favorites (3)
           </TabsTrigger>
-          <TabsTrigger value="heroes" onClick={() => setActiveTab("heroes")}>
-            Heroes (12)
+          <TabsTrigger
+            value="heroes"
+            onClick={() =>
+              setSearchParams((prev) => {
+                prev.set("tab", "heroes");
+                prev.set("category", "hero");
+                prev.set("page", "1");
+                return prev;
+              })
+            }
+          >
+            Heroes ({summary?.heroCount ?? 0})
           </TabsTrigger>
           <TabsTrigger
             value="villains"
-            onClick={() => setActiveTab("villains")}
+            onClick={() =>
+              setSearchParams((prev) => {
+                prev.set("tab", "villains");
+                prev.set("category", "villain");
+                prev.set("page", "1");
+                return prev;
+              })
+            }
           >
-            Villains (2)
+            Villains ({summary?.villainCount ?? 0})
           </TabsTrigger>
         </TabsList>
+
         <TabsContent value="all">
           {/* Mostrar todos los personajes */}
           <HeroGrid heroes={heroesResponse?.heroes ?? []} />
         </TabsContent>
+
         <TabsContent value="favorites">
           {/* Mostrar personajes favoritos */}
           <h1>Personajes favoritos</h1>
           {/* <HeroGrid /> */}
         </TabsContent>
+
         <TabsContent value="heroes">
           {/* Mostrar heroes */}
-          <h1>Heroes</h1>
-          {/* <HeroGrid /> */}
+          <HeroGrid heroes={heroesResponse?.heroes ?? []} />
         </TabsContent>
+
         <TabsContent value="villains">
           {/* Mostrar villanos */}
-          <h1>Villanos</h1>
-          {/* <HeroGrid /> */}
+          <HeroGrid heroes={heroesResponse?.heroes ?? []} />
         </TabsContent>
       </Tabs>
 
@@ -88,7 +133,7 @@ export const HomePage = () => {
       </div> */}
 
       {/* Pagination */}
-      <CustomPagination totalPages={8} />
+      <CustomPagination totalPages={heroesResponse?.pages ?? 1} />
     </>
   );
 };

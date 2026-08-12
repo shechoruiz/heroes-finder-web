@@ -1,4 +1,3 @@
-import React from "react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -16,7 +15,7 @@ export const CustomMenu = () => {
   };
 
   return (
-    <NavigationMenu>
+    <NavigationMenu className="py-5">
       <NavigationMenuList className="gap-2">
         {/* Home */}
         <NavigationMenuItem>
