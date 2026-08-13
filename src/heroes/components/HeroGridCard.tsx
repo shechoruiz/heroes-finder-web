@@ -1,70 +1,57 @@
+import { useContext } from "react";
+import { useNavigate } from "react-router";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Brain, Eye, Gauge, Heart, Shield, Zap } from "lucide-react";
 import type { Hero } from "../types/hero.interface";
-import { useNavigate } from "react-router";
+import { FavoriteHeroContext } from "../context/FavoriteHeroContext";
 
 interface HeroGridCardProps {
   hero: Hero;
 }
 
-export const HeroGridCard = ({
-  hero: {
-    name,
-    alias,
-    universe,
-    category,
-    team,
-    description,
-    durability,
-    strength,
-    speed,
-    intelligence,
-    powers,
-    status,
-    image,
-    firstAppearance,
-    slug,
-  },
-}: HeroGridCardProps) => {
+export const HeroGridCard = ({ hero }: HeroGridCardProps) => {
   const navigate = useNavigate();
+  // Recordar que desde react 19 n se aconseja el uso del useContext, se prefiere el API use(FavoriteHeroContext);
+  const { isFavorite, toggleFavorite } = useContext(FavoriteHeroContext);
 
   const handleClick = () => {
-    navigate(`/heroes/${slug}`);
+    navigate(`/heroes/${hero.slug}`);
   };
 
   return (
-    <Card
-      className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-white to-gray-50"
-      onClick={handleClick}
-    >
+    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-white to-gray-50">
       <div className="relative h-64">
         <img
-          src={image ? image : "/placeholder.svg?height=300&width=300"}
-          alt={name}
+          src={
+            hero.image ? hero.image : "/placeholder.svg?height=300&width=300"
+          }
+          alt={hero.name}
           className="object-cover transition-all duration-500 group-hover:scale-110 absolute top-[-30px] w-full h-[410px]"
+          onClick={handleClick}
         />
 
         {/* Status indicator */}
         <div className="absolute top-3 left-3 flex items-center gap-2">
           <div
-            className={`w-3 h-3 rounded-full ${status === "Active" ? "bg-green-500" : "bg-red-500"} `}
+            className={`w-3 h-3 rounded-full ${hero.status === "Active" ? "bg-green-500" : "bg-red-500"} `}
           />
           <Badge
             variant="secondary"
             className="text-xs bg-white/90 text-gray-700"
           >
-            {status}
+            {hero.status}
           </Badge>
         </div>
 
         {/* Universe badge */}
         <Badge
-          className={`absolute top-3 right-3 text-xs ${universe === "DC" ? "bg-blue-600" : "bg-red-500"} text-white`}
+          className={`absolute top-3 right-3 text-xs ${hero.universe === "DC" ? "bg-blue-600" : "bg-red-500"} text-white`}
         >
-          {universe}
+          {hero.universe}
         </Badge>
 
         {/* Favorite button */}
@@ -72,8 +59,11 @@ export const HeroGridCard = ({
           size="sm"
           variant="ghost"
           className="absolute bottom-3 right-3 bg-white/90 hover:bg-white"
+          onClick={() => toggleFavorite(hero)}
         >
-          <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+          <Heart
+            className={`h-4 w-4 ${isFavorite(hero) ? "fill-red-500 text-red-500" : ""} `}
+          />
         </Button>
 
         {/* View details button */}
@@ -89,20 +79,20 @@ export const HeroGridCard = ({
       <CardHeader className="py-3 z-10 bg-gray-100/50 backdrop-blur-sm relative top-2 group-hover:top-[-10px] transition-all duration-300">
         <div className="flex justify-between items-start">
           <div className="space-y-1">
-            <h3 className="font-bold text-lg leading-tight">{alias}</h3>
-            <p className="text-sm text-gray-600">{name}</p>
+            <h3 className="font-bold text-lg leading-tight">{hero.alias}</h3>
+            <p className="text-sm text-gray-600">{hero.name}</p>
           </div>
           <Badge className="text-xs bg-green-100 text-green-800 border-green-200">
-            {category}
+            {hero.category}
           </Badge>
         </div>
         <Badge variant="outline" className="w-fit text-xs">
-          {team}
+          {hero.team}
         </Badge>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
+        <p className="text-sm text-gray-600 line-clamp-2">{hero.description}</p>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3">
@@ -112,7 +102,7 @@ export const HeroGridCard = ({
               <span className="text-xs font-medium">Strength</span>
             </div>
             <Progress
-              value={strength * 10}
+              value={hero.strength * 10}
               className="h-2"
               activeColor="bg-orange-500"
             />
@@ -123,7 +113,7 @@ export const HeroGridCard = ({
               <span className="text-xs font-medium">Intelligence</span>
             </div>
             <Progress
-              value={intelligence * 10}
+              value={hero.intelligence * 10}
               className="h-2"
               activeColor="bg-blue-500"
             />
@@ -134,7 +124,7 @@ export const HeroGridCard = ({
               <span className="text-xs font-medium">Speed</span>
             </div>
             <Progress
-              value={speed * 10}
+              value={hero.speed * 10}
               className="h-2"
               activeColor="bg-green-500"
             />
@@ -145,7 +135,7 @@ export const HeroGridCard = ({
               <span className="text-xs font-medium">Durability</span>
             </div>
             <Progress
-              value={durability * 10}
+              value={hero.durability * 10}
               className="h-2"
               activeColor="bg-purple-500"
             />
@@ -156,21 +146,21 @@ export const HeroGridCard = ({
         <div className="space-y-2">
           <h4 className="font-medium text-sm">Powers:</h4>
           <div className="flex flex-wrap gap-1">
-            {powers.slice(0, 3).map((power) => (
+            {hero.powers.slice(0, 3).map((power) => (
               <Badge variant="outline" className="text-xs" key={power}>
                 {power}
               </Badge>
             ))}
-            {powers.length > 3 && (
+            {hero.powers.length > 3 && (
               <Badge variant="outline" className="text-xs bg-gray-100">
-                +{powers.length - 3} more
+                +{hero.powers.length - 3} more
               </Badge>
             )}
           </div>
         </div>
 
         <div className="text-xs text-gray-500 pt-2 border-t">
-          Primera aparición: {firstAppearance}
+          Primera aparición: {hero.firstAppearance}
         </div>
       </CardContent>
     </Card>

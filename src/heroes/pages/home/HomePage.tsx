@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useSearchParams } from "react-router";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +9,7 @@ import { CustomPagination } from "@/components/custom/CustomPagination";
 import { CustomBreadcrumbs } from "@/components/custom/CustomBreadcrumbs";
 import { useHeroSummary } from "@/heroes/hooks/useHeroSummary";
 import { usePaginatedHero } from "@/heroes/hooks/usePaginatedHero";
+import { FavoriteHeroContext } from "@/heroes/context/FavoriteHeroContext";
 
 export const HomePage = () => {
   // Que es el useSearchParams: son los parametros de consulta o query string que van después del signo de interrogación (?) en una URL (por ejemplo: /productos?categoria=ropa&orden=precio). Sirven para leer y modificar datos en la URL, como filtros o páginas.
@@ -30,6 +31,7 @@ export const HomePage = () => {
     category,
   );
   const { data: summary } = useHeroSummary();
+  const { favoriteCount, favorites } = useContext(FavoriteHeroContext);
 
   return (
     <>
@@ -69,7 +71,7 @@ export const HomePage = () => {
               })
             }
           >
-            Favorites (3)
+            Favorites ({favoriteCount})
           </TabsTrigger>
           <TabsTrigger
             value="heroes"
@@ -106,8 +108,7 @@ export const HomePage = () => {
 
         <TabsContent value="favorites">
           {/* Mostrar personajes favoritos */}
-          <h1>Personajes favoritos</h1>
-          {/* <HeroGrid /> */}
+          <HeroGrid heroes={favorites} />
         </TabsContent>
 
         <TabsContent value="heroes">
@@ -133,7 +134,9 @@ export const HomePage = () => {
       </div> */}
 
       {/* Pagination */}
-      <CustomPagination totalPages={heroesResponse?.pages ?? 1} />
+      {selectedTab !== "favorites" && (
+        <CustomPagination totalPages={heroesResponse?.pages ?? 1} />
+      )}
     </>
   );
 };
