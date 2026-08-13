@@ -1,6 +1,6 @@
 # Heroes Finder Web
 
-App web de portafolio que consulta un catálogo de héroes y villanos de DC y Marvel: explora el universo, busca por nombre con filtros avanzados, revisa estadísticas y poderes de cada personaje y guarda tus favoritos de forma persistente. Los datos los sirve una API NestJS propia (`nest-heroes-backend`).
+App web de portafolio que consulta un catálogo de héroes y villanos de DC y Marvel: explora el universo, busca por nombre con filtros avanzados, revisa estadísticas y poderes de cada personaje y guarda tus favoritos de forma persistente. Los datos los sirve una API NestJS ([`nest-heroes-backend`](https://github.com/Klerith/nest-heroes-backend)).
 
 ## Stack
 
@@ -10,7 +10,7 @@ App web de portafolio que consulta un catálogo de héroes y villanos de DC y Ma
 | Estado | TanStack Query (server state) · Context API (favoritos en `localStorage`) |
 | Estilos | Tailwind CSS v4 + shadcn/ui (Radix) |
 | Routing | React Router 7 (`createBrowserRouter`, lazy loading) |
-| Datos | API NestJS propia (`nest-heroes-backend`) con 25 personajes semilla |
+| Datos | API NestJS ([`nest-heroes-backend`](https://github.com/Klerith/nest-heroes-backend)) con 25 personajes semilla |
 | HTTP | Axios |
 
 ## Progreso
@@ -30,7 +30,8 @@ App web de portafolio que consulta un catálogo de héroes y villanos de DC y Ma
 # Requisitos: Node 20+, npm 10+
 
 # 1. Levantar el backend (nest-heroes-backend) en el puerto 3000
-#    (repo hermano del curso — sirve /api/heroes con los datos semilla)
+#    (repo del curso: https://github.com/Klerith/nest-heroes-backend —
+#    sirve /api/heroes con los datos semilla)
 cd nest-heroes-backend
 npm install
 npm run start:dev
@@ -122,6 +123,6 @@ npm run preview  # previsualizar el build de producción
 
 ## Notas de desarrollo
 
-- Los datos provienen de `nest-heroes-backend` (repo hermano): 25 personajes semilla con imagen servida por el propio backend (`VITE_API_URL/images/...`).
+- Los datos provienen de [`nest-heroes-backend`](https://github.com/Klerith/nest-heroes-backend) (repo del curso): 25 personajes semilla con imagen servida por el propio backend (`VITE_API_URL/images/...`).
 - Convención de commits: conventional commits, una unidad de trabajo revisable por commit.
 - Query params como `?page=2&tab=heroes` mantienen el estado de la navegación compartible por URL.
