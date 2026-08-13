@@ -2,8 +2,8 @@ import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router";
 
 import { HeroesLayout } from "@/heroes/layouts/HeroesLayout";
-import { AdminLayout } from "@/admin/layouts/AdminLayout";
-import { AdminPage } from "@/admin/pages/AdminPage";
+// import { AdminLayout } from "@/admin/layouts/AdminLayout";
+// import { AdminPage } from "@/admin/pages/AdminPage";
 import { HeroPage } from "@/heroes/pages/hero/HeroPage";
 import { HomePage } from "@/heroes/pages/home/HomePage";
 
@@ -32,14 +32,14 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "/admin",
-    element: <AdminLayout />,
-    children: [
-      {
-        index: true,
-        element: <AdminPage />,
-      },
-    ],
-  },
+  // {
+  //   path: "/admin",
+  //   element: <AdminLayout />,
+  //   children: [
+  //     {
+  //       index: true,
+  //       element: <AdminPage />,
+  //     },
+  //   ],
+  // },
 ]);
