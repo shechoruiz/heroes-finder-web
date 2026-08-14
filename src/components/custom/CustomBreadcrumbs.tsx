@@ -26,7 +26,7 @@ export const CustomBreadcrumbs = ({ currentPage, breadcrumbs }: Props) => {
         {/* Home */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to="/">Home</Link>
+            <Link to="/">Inicio</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>
