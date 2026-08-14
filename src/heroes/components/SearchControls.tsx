@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Search, Filter, SortAsc, Grid, Plus } from "lucide-react";
+import { Search, Filter, SortAsc, Grid } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,88 @@ import {
   AccordionContent,
   AccordionItem,
 } from "@/components/ui/accordion";
+
+// Los `value` son los valores reales del backend (seed de nest-heroes-backend);
+// los `label` son lo que ve el usuario
+const FILTERS = [
+  {
+    param: "team",
+    label: "Equipo",
+    allLabel: "Todos los equipos",
+    options: [
+      { value: "Liga de la Justicia", label: "Liga de la Justicia" },
+      { value: "Vengadores", label: "Vengadores" },
+      { value: "X-Men", label: "X-Men" },
+      { value: "Batfamilia", label: "Batfamilia" },
+      { value: "Jóvenes Titanes", label: "Jóvenes Titanes" },
+      { value: "Solo", label: "Solo" },
+      { value: "Suicide Squad", label: "Escuadrón Suicida" },
+    ],
+  },
+  {
+    param: "category",
+    label: "Categoría",
+    allLabel: "Todas las categorías",
+    options: [
+      { value: "Hero", label: "Héroe" },
+      { value: "Villain", label: "Villano" },
+    ],
+  },
+  {
+    param: "universe",
+    label: "Universo",
+    allLabel: "Todos los universos",
+    options: [
+      { value: "DC", label: "DC" },
+      { value: "Marvel", label: "Marvel" },
+    ],
+  },
+  {
+    param: "status",
+    label: "Estado",
+    allLabel: "Todos los estados",
+    options: [
+      { value: "Active", label: "Activo" },
+      { value: "Deceased", label: "Fallecido" },
+    ],
+  },
+] as const;
+
+interface FilterSelectProps {
+  param: string;
+  label: string;
+  allLabel: string;
+  options: readonly { value: string; label: string }[];
+  value: string;
+  onChange: (param: string, value: string) => void;
+}
+
+const FilterSelect = ({
+  param,
+  label,
+  allLabel,
+  options,
+  value,
+  onChange,
+}: FilterSelectProps) => {
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium">{label}</label>
+      <select
+        value={value}
+        onChange={(e) => onChange(param, e.target.value)}
+        className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+      >
+        <option value="">{allLabel}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
 export const SearchControls = () => {
   // Usamos en esta caso un useRef en vez de useState porque no necesitamos controlar el estado de la busqueda, lo que evita también que haya un re-render por cada tecleo
@@ -27,11 +109,56 @@ export const SearchControls = () => {
     });
   };
 
+  const removeQueryParams = (...names: string[]) => {
+    setSearchParams((prev) => {
+      names.forEach((paramName) => prev.delete(paramName));
+      return prev;
+    });
+  };
+
+  const handleSearch = () => {
+    const value = inputRef.current?.value.trim() ?? "";
+
+    if (value) {
+      setQueryParams("name", value);
+    } else {
+      removeQueryParams("name");
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      const value = inputRef.current?.value ?? "";
-      setQueryParams("name", value);
+      handleSearch();
     }
+  };
+
+  // Limpia el filtro `name` de la URL cuando el usuario vacía el input
+  const handleInputChange = () => {
+    if (inputRef.current?.value === "") {
+      removeQueryParams("name");
+    }
+  };
+
+  const handleSelectChange = (param: string, value: string) => {
+    if (value === "") {
+      removeQueryParams(param);
+    } else {
+      setQueryParams(param, value);
+    }
+  };
+
+  const handleClearAll = () => {
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+    removeQueryParams(
+      "name",
+      "team",
+      "category",
+      "universe",
+      "status",
+      "strength",
+    );
   };
 
   return (
@@ -42,12 +169,21 @@ export const SearchControls = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <Input
-            placeholder="Search heroes, villains, powers, teams..."
-            className="pl-12 h-12 text-lg bg-white"
+            placeholder="Buscar héroes, villanos, poderes, equipos..."
+            className="pl-12 pr-12 h-12 text-lg bg-white"
             ref={inputRef}
-            onKeyDown={handleKeyDown}
             defaultValue={name}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
           />
+          <button
+            type="button"
+            aria-label="Buscar"
+            onClick={handleSearch}
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          >
+            <Search className="h-5 w-5" />
+          </button>
         </div>
 
         {/* Action buttons */}
@@ -70,22 +206,23 @@ export const SearchControls = () => {
             }}
           >
             <Filter className="h-4 w-4 mr-2" />
-            Filters
+            Filtros
           </Button>
 
           <Button variant="outline" className="h-12 bg-white">
             <SortAsc className="h-4 w-4 mr-2" />
-            Sort by Name
+            Ordenar por nombre
           </Button>
 
           <Button variant="outline" className="h-12 bg-white">
             <Grid className="h-4 w-4" />
           </Button>
 
-          <Button className="h-12">
+          {/* Oculto: el área administrativa (/admin) está desactivada en el router */}
+          {/* <Button className="h-12" onClick={handleAddCharacter}>
             <Plus className="h-4 w-4 mr-2" />
             Add Character
-          </Button>
+          </Button> */}
         </div>
       </section>
 
@@ -96,42 +233,31 @@ export const SearchControls = () => {
           <AccordionContent>
             <section className="bg-white rounded-lg p-6 mb-8 shadow-sm border">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Advanced Filters</h3>
-                <Button variant="ghost">Clear All</Button>
+                <h3 className="text-lg font-semibold">Filtros avanzados</h3>
+                <Button variant="ghost" onClick={handleClearAll}>
+                  Limpiar todo
+                </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Team</label>
-                  <div className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    All teams
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Category</label>
-                  <div className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    All categories
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Universe</label>
-                  <div className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    All universes
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Status</label>
-                  <div className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    All statuses
-                  </div>
-                </div>
+                {FILTERS.map((filter) => (
+                  <FilterSelect
+                    key={filter.param}
+                    param={filter.param}
+                    label={filter.label}
+                    allLabel={filter.allLabel}
+                    options={filter.options}
+                    value={searchParams.get(filter.param) ?? ""}
+                    onChange={handleSelectChange}
+                  />
+                ))}
               </div>
               <div className="mt-4">
                 <label className="text-sm font-medium">
-                  Fuerza minima: {selectedStrength}/10
+                  Fuerza mínima: {selectedStrength}/10
                 </label>
                 <div className="relative flex w-full touch-none select-none items-center mt-2">
                   <Slider
-                    defaultValue={[selectedStrength]}
+                    value={[selectedStrength]}
                     onValueChange={(value) =>
                       setQueryParams("strength", value[0].toString())
                     }
