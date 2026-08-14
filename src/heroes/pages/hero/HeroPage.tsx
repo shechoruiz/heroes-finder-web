@@ -14,7 +14,7 @@ export const HeroPage = () => {
 
   if (isError) return <Navigate to="/" />;
 
-  if (!superheroData) return <h1>Loading...</h1>;
+  if (!superheroData) return <h1>Cargando...</h1>;
 
   const totalPower = superheroData
     ? superheroData.strength +

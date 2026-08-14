@@ -28,10 +28,10 @@ export const SearchPage = () => {
 
   return (
     <>
-      <CustomJumbotron title="Busqueda de superheroes" />
+      <CustomJumbotron title="Búsqueda de superhéroes" />
       {/* Breadcrumbs */}
       <CustomBreadcrumbs
-        currentPage="Busqueda"
+        currentPage="Búsqueda"
         // breadcrumbs={[
         //   { label: "Home", to: "/" },
         //   { label: "Home2", to: "/" },

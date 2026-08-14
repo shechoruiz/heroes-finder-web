@@ -38,7 +38,7 @@ export const HomePage = () => {
       {/* Header */}
       <CustomJumbotron title="Universo de superheroes" />
 
-      <CustomBreadcrumbs currentPage="Super heroes" />
+      <CustomBreadcrumbs currentPage="Superhéroes" />
 
       {/* Stats Dashboard */}
       <HeroStats />
@@ -57,7 +57,7 @@ export const HomePage = () => {
               })
             }
           >
-            All Characters ({summary?.totalHeroes ?? 0})
+            Todos los personajes ({summary?.totalHeroes ?? 0})
           </TabsTrigger>
           <TabsTrigger
             value="favorites"
@@ -71,7 +71,7 @@ export const HomePage = () => {
               })
             }
           >
-            Favorites ({favoriteCount})
+            Favoritos ({favoriteCount})
           </TabsTrigger>
           <TabsTrigger
             value="heroes"
@@ -84,7 +84,7 @@ export const HomePage = () => {
               })
             }
           >
-            Heroes ({summary?.heroCount ?? 0})
+            Héroes ({summary?.heroCount ?? 0})
           </TabsTrigger>
           <TabsTrigger
             value="villains"
@@ -97,7 +97,7 @@ export const HomePage = () => {
               })
             }
           >
-            Villains ({summary?.villainCount ?? 0})
+            Villanos ({summary?.villainCount ?? 0})
           </TabsTrigger>
         </TabsList>
 
