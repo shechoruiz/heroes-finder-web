@@ -74,10 +74,17 @@ const FilterSelect = ({
   value,
   onChange,
 }: FilterSelectProps) => {
+  // useId asocia el label con el select (accesibilidad: lectores de pantalla
+  // y testing-library getByLabelText dependen de la asociación explícita)
+  const selectId = React.useId();
+
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">{label}</label>
+      <label htmlFor={selectId} className="text-sm font-medium">
+        {label}
+      </label>
       <select
+        id={selectId}
         value={value}
         onChange={(e) => onChange(param, e.target.value)}
         className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
