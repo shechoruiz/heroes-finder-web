@@ -9,7 +9,7 @@ import { HomePage } from "@/heroes/pages/home/HomePage";
 
 const SearchPage = lazy(() => import("@/heroes/pages/search/SearchPage"));
 
-export const router = createBrowserRouter([
+export const appRoutes = [
   {
     path: "/",
     element: <HeroesLayout />,
@@ -42,4 +42,6 @@ export const router = createBrowserRouter([
   //     },
   //   ],
   // },
-]);
+] satisfies Parameters<typeof createBrowserRouter>[0];
+
+export const router = createBrowserRouter(appRoutes);

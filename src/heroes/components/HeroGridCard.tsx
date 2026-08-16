@@ -59,6 +59,7 @@ export const HeroGridCard = ({ hero }: HeroGridCardProps) => {
           size="sm"
           variant="ghost"
           className="absolute bottom-3 right-3 bg-white/90 hover:bg-white"
+          aria-label={isFavorite(hero) ? "Quitar de favoritos" : "Agregar a favoritos"}
           onClick={() => toggleFavorite(hero)}
         >
           <Heart
